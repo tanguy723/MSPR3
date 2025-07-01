@@ -3,13 +3,18 @@ Jenkinsfile (Declarative Pipeline)
 
 /* Requires the Docker Pipeline plugin */
 pipeline {
-    agent { docker { image 'python:3.13.5-alpine3.22' } }
-    stages {
-        stage('build') {
-            steps {
-                sh 'python --version'
+    agent any
+     stage('Deploy') {
+                steps {
+                    retry(3) {
+                        sh './flakey-deploy.sh'
+                    }
+
+                    timeout(time: 3, unit: 'MINUTES') {
+                        sh './health-check.sh'
+                    }
+                }
             }
-        }
     }
 }
 
